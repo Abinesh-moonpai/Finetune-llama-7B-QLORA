@@ -140,8 +140,6 @@ class QloraTrainer:
         else:
             context_window = self.tokenizer.model_max_length
             
-        # Replace this line with the actual way you load your SQL data
-        # This is just a mock example.
         data = load_dataset(self.config["dataset"])
         
         def tokenize_data_point(data_point):
