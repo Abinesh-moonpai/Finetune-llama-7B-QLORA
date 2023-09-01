@@ -66,7 +66,7 @@ class QloraTrainer:
 
         print("Start data preprocessing")
         # TODO: Expand this to cover more dataset types and processing patterns
-        data = self._process_vicuna_data()
+        data = self._process_sql_data()
 
         print("Start training")
         trainer = transformers.Trainer(
@@ -134,7 +134,7 @@ class QloraTrainer:
     def _generate_prompt(self, context, question, eos_token="[EOS]"):
         return f"Context: {context} Question: {question} {eos_token}"
     
-    def process_sql_data(self) -> DatasetDict:
+    def _process_sql_data(self) -> DatasetDict:
         if "model_context_window" in self.config:
             context_window = self.config["model_context_window"]
         else:
@@ -142,7 +142,7 @@ class QloraTrainer:
             
         # Replace this line with the actual way you load your SQL data
         # This is just a mock example.
-        data = load_dataset("csv", data_files={"train": "your_train_data.csv", "test": "your_test_data.csv"})
+        data = load_dataset(self.config["dataset"])
         
         def tokenize_data_point(data_point):
             prompt = self._generate_prompt(
