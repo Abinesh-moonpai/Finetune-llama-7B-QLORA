@@ -130,43 +130,39 @@ class QloraTrainer:
         print(
             f"trainable params: {trainable_params} || all params: {all_param} || trainable%: {100 * trainable_params / all_param}"
         )
-
-    def _generate_prompt(self, convo: list, eos_token: str, instruct: bool = False) -> str:
-        convo_text = ""
-        for turn in convo:
-            entity = turn["from"]
-            value = turn["value"]
-
-            if entity == "human":
-                convo_text += "### HUMAN:\n"
-                end_token = ""
-            elif entity == "gpt":
-                convo_text += "### RESPONSE:\n"
-                end_token = eos_token  # LLM should stop its output after the response
-            else:
-                print(f"WARNING: uknown entity {entity}")
-                convo_text += f"### {entity.upper()}:\n"
-                end_token = ""
-
-            convo_text += value + end_token + "\n\n"
-
-            if instruct and entity == "gpt":
-                return convo_text
-        return convo_text
-
-    def _process_vicuna_data(self) -> DatasetDict:
+        
+    def _generate_prompt(self, context, question, eos_token="[EOS]"):
+        return f"Context: {context} Question: {question} {eos_token}"
+    
+    def process_sql_data(self) -> DatasetDict:
         if "model_context_window" in self.config:
             context_window = self.config["model_context_window"]
         else:
             context_window = self.tokenizer.model_max_length
-
-        data = load_dataset(self.config["dataset"])
-        data = data.map(lambda data_point: self.tokenizer(
-            self._generate_prompt(
-                data_point["conversations"],
-                self.tokenizer.eos_token, 
-                instruct=self.config["instruct"]),
-            max_length=context_window,
-            truncation=True,
-        ))
+            
+        # Replace this line with the actual way you load your SQL data
+        # This is just a mock example.
+        data = load_dataset("csv", data_files={"train": "your_train_data.csv", "test": "your_test_data.csv"})
+        
+        def tokenize_data_point(data_point):
+            prompt = self._generate_prompt(
+                data_point["context"],
+                data_point["question"],
+                eos_token=self.tokenizer.eos_token
+            )
+            tokenized_prompt = self.tokenizer(
+                prompt,
+                max_length=context_window,
+                truncation=True
+            )
+            tokenized_answer = self.tokenizer(
+                data_point["answer"],
+                max_length=context_window,
+                truncation=True
+            )
+            return {**tokenized_prompt, "labels": tokenized_answer["input_ids"]}
+        
+        data = data.map(tokenize_data_point)
         return data
+
+
