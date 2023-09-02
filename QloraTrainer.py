@@ -139,7 +139,7 @@ class QloraTrainer:
             context_window = self.config["model_context_window"]
         else:
             context_window = self.tokenizer.model_max_length
-            
+
         data = load_dataset(self.config["dataset"])
         
         def tokenize_data_point(data_point):
