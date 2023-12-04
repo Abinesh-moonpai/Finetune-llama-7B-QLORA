@@ -18,11 +18,6 @@ LoRA is a cutting-edge technique designed to reduce the size of large language m
 2. **Applying Low-Rank Approximations:** Utilizing low-rank approximations on the quantized parameters.
 
 
-## Detailed Report
-
-A comprehensive report detailing the methods, experiments, and results is available in this repository. Please refer to the [report](Report.pdf) for a complete understanding of the project.
-
-
 
 ## Guide to Fine-Tuning
 
